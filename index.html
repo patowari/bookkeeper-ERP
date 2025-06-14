@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookkeeper ERP - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #1a1d29;
+            --sidebar-hover: #2a2d3a;
+            --sidebar-active: #3b82f6;
+            --main-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--main-bg);
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            min-height: 100vh;
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .sidebar-subtitle {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            color: #94a3b8;
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: #ffffff;
+        }
+
+        .nav-link.active {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #ffffff;
+            border-left-color: var(--sidebar-active);
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            margin-left: 0;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .top-navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-input {
+            background-color: var(--main-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--sidebar-active);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .currency-icon {
+            background-color: var(--sidebar-active);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .currency-icon:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .dashboard-content {
+            padding: 2rem;
+        }
+
+        .dashboard-title {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: 350px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            height: calc(100% - 3rem);
+            position: relative;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Page Content */
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        /* Sales specific styles */
+        .sales-table {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-responsive {
+            border-radius: 1rem;
+        }
+
+        .table thead th {
+            background-color: var(--main-bg);
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table tbody td {
+            border: none;
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .status-pending { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .status-cancelled { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view { background-color: var(--info); color: white; }
+        .btn-edit { background-color: var(--warning); color: white; }
+        .btn-delete { background-color: var(--danger); color: white; }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Desktop styles */
+        @media (min-width: 992px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 280px;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 991px) {
+            .mobile-toggle {
+                display: block;
+            }
+
+            .dashboard-content {
+                padding: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 1.75rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-container {
+                margin: 1rem 0;
+            }
+
+            .stat-value {
+                font-size: 1.75rem;
+            }
+
+            .chart-card {
+                height: 300px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--sidebar-active);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">Bookkeeper ERP</a>
+            <div class="sidebar-subtitle">Business Management System</div>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="sales">
+                    <i class="fas fa-chart-line"></i>
+                    Sales
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="expenses">
+                    <i class="fas fa-receipt"></i>
+                    Expenses
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="profit">
+                    <i class="fas fa-dollar-sign"></i>
+                    Profit
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <nav class="top-navbar">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="d-flex align-items-center">
+                            <button class="mobile-toggle me-3" id="mobileToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <div class="search-container w-100">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" class="search-input" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-flex justify-content-end">
+                            <div class="currency-icon">
+                                <i class="fas fa-peso-sign"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <div class="container-fluid">
+                
+                <!-- Dashboard Page -->
+                <div class="page-content active" id="dashboardPage">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h1 class="dashboard-title">Dashboard</h1>
+                            <p class="dashboard-subtitle">Welcome back! Here's your business overview</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards Row -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱45,000</div>
+                                <div class="stat-label">Sales - This Month</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱18,200</div>
+                                <div class="stat-label">Expenses - This Month</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="chart-card fade-in">
+                                <h3 class="chart-title">Revenue</h3>
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="chart-card fade-in">
+                                <h3 class="chart-title">Costs</h3>
+                                <div class="chart-container">
+                                    <canvas id="costsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Content Row -->
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Monthly Performance</h3>
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="stat-card h-100 d-flex flex-column justify-content-center">
+                                <div class="text-center">
+                                    <div class="stat-value" style="color: var(--success);">₱26,800</div>
+                                    <div class="stat-label">Net Profit This Month</div>
+                                    <div class="mt-3">
+                                        <span class="badge bg-success fs-6">+15.7% from last month</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Page -->
+                <div class="page-content" id="salesPage">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h1 class="dashboard-title">Sales Management</h1>
+                            <p class="dashboard-subtitle">Track and manage your sales performance</p>
+                        </div>
+                    </div>
+
+                    <!-- Sales Stats -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱85,420</div>
+                                <div class="stat-label">Total Sales</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">1,247</div>
+                                <div class="stat-label">Active Customers</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">24.5%</div>
+                                <div class="stat-label">Conversion Rate</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱684</div>
+                                <div class="stat-label">Avg. Order Value</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sales Charts -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-8">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Sales Trend</h3>
+                                <div class="chart-container">
+                                    <canvas id="salesTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Sales by Category</h3>
+                                <div class="chart-container">
+                                    <canvas id="salesCategoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Sales Table -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="sales-table">
+                                <div class="p-3 border-bottom">
+                                    <h5 class="mb-0">Recent Sales</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#ORD-2024-001</td>
+                                                <td>Juan Dela Cruz</td>
+                                                <td>₱2,450</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                                <td>2024-01-15</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-2024-002</td>
+                                                <td>Maria Santos</td>
+                                                <td>₱1,890</td>
+                                                <td><span class="status-badge status-pending">Pending</span></td>
+                                                <td>2024-01-14</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-2024-003</td>
+                                                <td>Roberto Garcia</td>
+                                                <td>₱3,200</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                                <td>2024-01-13</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-2024-004</td>
+                                                <td>Ana Reyes</td>
+                                                <td>₱875</td>
+                                                <td><span class="status-badge status-cancelled">Cancelled</span></td>
+                                                <td>2024-01-12</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-2024-005</td>
+                                                <td>Carlos Lopez</td>
+                                                <td>₱4,125</td>
+                                                <td><span class="status-badge status-completed">Completed</span></td>
+                                                <td>2024-01-11</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses Page -->
+                <div class="page-content" id="expensesPage">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h1 class="dashboard-title">Expenses Management</h1>
+                            <p class="dashboard-subtitle">Track and control your business expenses</p>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Stats -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱35,200</div>
+                                <div class="stat-label">Total Expenses</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱12,500</div>
+                                <div class="stat-label">Operating Costs</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱8,900</div>
+                                <div class="stat-label">Marketing</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱13,800</div>
+                                <div class="stat-label">Other Expenses</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Charts -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-8">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Monthly Expenses</h3>
+                                <div class="chart-container">
+                                    <canvas id="expensesTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Expense Categories</h3>
+                                <div class="chart-container">
+                                    <canvas id="expensesCategoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Expenses Table -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="sales-table">
+                                <div class="p-3 border-bottom">
+                                    <h5 class="mb-0">Recent Expenses</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Expense ID</th>
+                                                <th>Description</th>
+                                                <th>Category</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#EXP-2024-001</td>
+                                                <td>Office Supplies</td>
+                                                <td>Operations</td>
+                                                <td>₱2,500</td>
+                                                <td>2024-01-15</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EXP-2024-002</td>
+                                                <td>Marketing Campaign</td>
+                                                <td>Marketing</td>
+                                                <td>₱8,900</td>
+                                                <td>2024-01-14</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EXP-2024-003</td>
+                                                <td>Utilities</td>
+                                                <td>Operations</td>
+                                                <td>₱4,200</td>
+                                                <td>2024-01-13</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#EXP-2024-004</td>
+                                                <td>Equipment Maintenance</td>
+                                                <td>Operations</td>
+                                                <td>₱1,800</td>
+                                                <td>2024-01-12</td>
+                                                <td>
+                                                    <button class="btn-action btn-view me-1">View</button>
+                                                    <button class="btn-action btn-edit me-1">Edit</button>
+                                                    <button class="btn-action btn-delete">Delete</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit Page -->
+                <div class="page-content" id="profitPage">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h1 class="dashboard-title">Profit Analysis</h1>
+                            <p class="dashboard-subtitle">Monitor your business profitability and margins</p>
+                        </div>
+                    </div>
+
+                    <!-- Profit Stats -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value" style="color: var(--success);">₱50,220</div>
+                                <div class="stat-label">Net Profit</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">58.8%</div>
+                                <div class="stat-label">Profit Margin</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱85,420</div>
+                                <div class="stat-label">Gross Revenue</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card fade-in">
+                                <div class="stat-value">₱35,200</div>
+                                <div class="stat-label">Total Costs</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profit Charts -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-8">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Profit Trend</h3>
+                                <div class="chart-container">
+                                    <canvas id="profitTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="chart-card">
+                                <h3 class="chart-title">Revenue vs Expenses</h3>
+                                <div class="chart-container">
+                                    <canvas id="revenueExpenseChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profit Analysis Table -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="sales-table">
+                                <div class="p-3 border-bottom">
+                                    <h5 class="mb-0">Monthly Profit Analysis</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Month</th>
+                                                <th>Revenue</th>
+                                                <th>Expenses</th>
+                                                <th>Net Profit</th>
+                                                <th>Margin %</th>
+                                                <th>Growth</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>January 2024</td>
+                                                <td>₱85,420</td>
+                                                <td>₱35,200</td>
+                                                <td style="color: var(--success);">₱50,220</td>
+                                                <td>58.8%</td>
+                                                <td><span class="status-badge status-completed">+15.7%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>December 2023</td>
+                                                <td>₱78,900</td>
+                                                <td>₱35,500</td>
+                                                <td style="color: var(--success);">₱43,400</td>
+                                                <td>55.0%</td>
+                                                <td><span class="status-badge status-completed">+8.2%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>November 2023</td>
+                                                <td>₱72,300</td>
+                                                <td>₱32,200</td>
+                                                <td style="color: var(--success);">₱40,100</td>
+                                                <td>55.5%</td>
+                                                <td><span class="status-badge status-pending">+3.1%</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>October 2023</td>
+                                                <td>₱69,800</td>
+                                                <td>₱30,900</td>
+                                                <td style="color: var(--success);">₱38,900</td>
+                                                <td>55.7%</td>
+                                                <td><span class="status-badge status-cancelled">-2.5%</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+        });
+
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+
+        // Navigation handling
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Hide all pages
+                document.querySelectorAll('.page-content').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Show selected page
+                const targetPage = this.getAttribute('data-page') + 'Page';
+                const targetElement = document.getElementById(targetPage);
+                if (targetElement) {
+                    targetElement.classList.add('active');
+                    
+                    // Initialize charts for the current page
+                    setTimeout(() => {
+                        initializePageCharts(this.getAttribute('data-page'));
+                    }, 100);
+                }
+                
+                // Close mobile sidebar
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        });
+
+        // Chart initialization
+        let chartInstances = {};
+
+        function destroyExistingCharts() {
+            Object.keys(chartInstances).forEach(key => {
+                if (chartInstances[key]) {
+                    chartInstances[key].destroy();
+                    delete chartInstances[key];
+                }
+            });
+        }
+
+        function initializePageCharts(page) {
+            // Destroy existing charts first
+            destroyExistingCharts();
+            
+            if (page === 'dashboard') {
+                initializeDashboardCharts();
+            } else if (page === 'sales') {
+                initializeSalesCharts();
+            } else if (page === 'expenses') {
+                initializeExpensesCharts();
+            } else if (page === 'profit') {
+                initializeProfitCharts();
+            }
+        }
+
+        // Wait for Chart.js to load and initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded');
+                return;
+            }
+
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#64748b';
+
+            initializeDashboardCharts();
+        });
+
+        function initializeDashboardCharts() {
+            // Revenue Line Chart
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                chartInstances['revenue'] = new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [15000, 22000, 18000, 28000],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e2e8f0' },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + value.toLocaleString();
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Costs Donut Chart
+            const costsCtx = document.getElementById('costsChart');
+            if (costsCtx) {
+                chartInstances['costs'] = new Chart(costsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Operations', 'Marketing', 'Supplies', 'Other'],
+                        datasets: [{
+                            data: [8200, 4500, 3200, 2300],
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#6b7280'],
+                            borderWidth: 0,
+                            cutout: '70%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart');
+            if (performanceCtx) {
+                chartInstances['performance'] = new Chart(performanceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [35000, 42000, 38000, 51000, 49000, 62000],
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }, {
+                            label: 'Expenses',
+                            data: [25000, 28000, 32000, 35000, 33000, 38000],
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderColor: '#ef4444',
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', align: 'end' }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e2e8f0' },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + (value / 1000) + 'K';
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initializeSalesCharts() {
+            // Sales Trend Chart
+            const salesTrendCtx = document.getElementById('salesTrendChart');
+            if (salesTrendCtx) {
+                chartInstances['salesTrend'] = new Chart(salesTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Sales',
+                            data: [65000, 72000, 68000, 85000, 79000, 92000, 88000, 95000, 89000, 102000, 98000, 115000],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e2e8f0' },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + (value / 1000) + 'K';
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Sales Category Chart
+            const salesCategoryCtx = document.getElementById('salesCategoryChart');
+            if (salesCategoryCtx) {
+                chartInstances['salesCategory'] = new Chart(salesCategoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books'],
+                        datasets: [{
+                            data: [35, 25, 20, 12, 8],
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                            borderWidth: 0,
+                            cutout: '70%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initializeExpensesCharts() {
+            // Expenses Trend Chart
+            const expensesTrendCtx = document.getElementById('expensesTrendChart');
+            if (expensesTrendCtx) {
+                chartInstances['expensesTrend'] = new Chart(expensesTrendCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Expenses',
+                            data: [25000, 28000, 32000, 35000, 33000, 38000, 36000, 39000, 37000, 42000, 40000, 45000],
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderColor: '#ef4444',
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e2e8f0' },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + (value / 1000) + 'K';
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Expenses Category Chart
+            const expensesCategoryCtx = document.getElementById('expensesCategoryChart');
+            if (expensesCategoryCtx) {
+                chartInstances['expensesCategory'] = new Chart(expensesCategoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Operations', 'Marketing', 'Salaries', 'Rent', 'Utilities'],
+                        datasets: [{
+                            data: [40, 25, 20, 10, 5],
+                            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'],
+                            borderWidth: 0,
+                            cutout: '70%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initializeProfitCharts() {
+            // Profit Trend Chart
+            const profitTrendCtx = document.getElementById('profitTrendChart');
+            if (profitTrendCtx) {
+                chartInstances['profitTrend'] = new Chart(profitTrendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Net Profit',
+                            data: [40000, 44000, 36000, 50000, 46000, 54000, 52000, 56000, 52000, 60000, 58000, 70000],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#e2e8f0' },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + (value / 1000) + 'K';
+                                    }
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Revenue vs Expense Chart
+            const revenueExpenseCtx = document.getElementById('revenueExpenseChart');
+            if (revenueExpenseCtx) {
+                chartInstances['revenueExpense'] = new Chart(revenueExpenseCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Revenue', 'Expenses'],
+                        datasets: [{
+                            data: [85420, 35200],
+                            backgroundColor: ['#10b981', '#ef4444'],
+                            borderWidth: 0,
+                            cutout: '70%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Add stagger animation to cards
+        document.querySelectorAll('.fade-in').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Searching for:', searchTerm);
+            // Implement your search logic here
+        });
+
+        // Button interactions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-action')) {
+                const action = e.target.textContent.toLowerCase();
+                const row = e.target.closest('tr');
+                const id = row ? row.cells[0].textContent : 'Unknown';
+                
+                console.log(`${action} action for ${id}`);
+                
+                // Add loading state
+                const originalText = e.target.textContent;
+                e.target.innerHTML = '<div class="loading"></div>';
+                
+                setTimeout(() => {
+                    e.target.textContent = originalText;
+                }, 1000);
+            }
+        });
+
+        // Responsive chart updates
+        window.addEventListener('resize', function() {
+            Object.keys(chartInstances).forEach(key => {
+                if (chartInstances[key]) {
+                    setTimeout(() => {
+                        chartInstances[key].resize();
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

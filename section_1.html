@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookkeeper ERP - Premium Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            
+            --sidebar-bg: linear-gradient(180deg, #1e1e2e 0%, #2d1b69 100%);
+            --sidebar-hover: rgba(255, 255, 255, 0.1);
+            --sidebar-active: rgba(102, 126, 234, 0.3);
+            --main-bg: #f8faff;
+            --card-bg: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: #e2e8f0;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .main-wrapper {
+            background: var(--main-bg);
+            min-height: 100vh;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .sidebar {
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            width: 300px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-brand {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 800;
+            text-decoration: none;
+            display: block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-subtitle {
+            color: #a0aec0;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            color: #a0aec0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0 25px 25px 0;
+            margin-right: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+            transform: translateX(10px);
+        }
+
+        .nav-link.active {
+            background: var(--sidebar-active);
+            color: #ffffff;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link.active::before {
+            width: 100%;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            margin-left: 0;
+            min-height: 100vh;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .top-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 450px;
+        }
+
+        .search-input {
+            background: rgba(248, 250, 252, 0.8);
+            border: 2px solid transparent;
+            border-radius: 50px;
+            padding: 0.875rem 1.25rem 0.875rem 3rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .currency-btn {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .currency-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .notification-btn {
+            background: var(--warning-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .notification-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(67, 233, 123, 0.4);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            background: #ff4757;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .dashboard-content {
+            padding: 2.5rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .dashboard-title {
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .time-display {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 20px;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card.sales::before {
+            background: var(--success-gradient);
+        }
+
+        .stat-card.expenses::before {
+            background: var(--danger-gradient);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.sales {
+            background: var(--success-gradient);
+        }
+
+        .stat-icon.expenses {
+            background: var(--danger-gradient);
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 20px;
+            padding: 2rem;
+            height: 400px;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chart-period {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: none;
+        }
+
+        .chart-container {
+            height: calc(100% - 4rem);
+            position: relative;
+        }
+
+        .performance-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .performance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .profit-card {
+            background: var(--success-gradient);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+
+        .profit-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-stat {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .quick-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.25rem;
+        }
+
+        /* Desktop styles */
+        @media (min-width: 992px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 300px;
+            }
+
+            .main-wrapper {
+                margin-left: 300px;
+                border-radius: 0 0 0 30px;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 991px) {
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .dashboard-content {
+                padding: 1.5rem;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .stat-value {
+                font-size: 2.2rem;
+            }
+
+            .chart-card {
+                height: 350px;
+            }
+
+            .main-wrapper {
+                border-radius: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-container {
+                margin: 1rem 0;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            .chart-card {
+                height: 300px;
+            }
+
+            .dashboard-content {
+                padding: 1rem;
+            }
+
+            .navbar-actions {
+                gap: 0.5rem;
+            }
+
+            .action-btn {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">BookKeeper ERP</a>
+            <div class="sidebar-subtitle">Business Intelligence Hub</div>
+        </div>
+
+        <!-- Quick Stats in Sidebar -->
+        <div class="quick-stats px-3">
+            <div class="quick-stat">
+                <div class="quick-stat-value">12</div>
+                <div class="quick-stat-label">Active Projects</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-value">48</div>
+                <div class="quick-stat-label">Clients</div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    Dashboard
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="sales">
+                    <i class="fas fa-arrow-trend-up"></i>
+                    Sales
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="expenses">
+                    <i class="fas fa-receipt"></i>
+                    Expenses
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="profit">
+                    <i class="fas fa-coins"></i>
+                    Profit
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="reports">
+                    <i class="fas fa-file-alt"></i>
+                    Reports
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <div class="main-content">
+            <!-- Top Navbar -->
+            <nav class="top-navbar">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <div class="d-flex align-items-center">
+                                <button class="mobile-toggle me-3" id="mobileToggle">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                                <div class="search-container w-100">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" class="search-input" placeholder="Search transactions, clients, reports...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="navbar-actions justify-content-end">
+                                <button class="action-btn notification-btn" title="Notifications">
+                                    <i class="fas fa-bell"></i>
+                                    <div class="notification-badge"></div>
+                                </button>
+                                <button class="action-btn currency-btn" title="Currency: PHP">
+                                    <i class="fas fa-peso-sign"></i>
+                                </button>
+                                <div class="dropdown">
+                                    <button class="action-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-user"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <div class="container-fluid">
+                    <div class="dashboard-header">
+                        <h1 class="dashboard-title">Dashboard Overview</h1>
+                        <p class="dashboard-subtitle">Welcome back! Here's your business performance at a glance</p>
+                        <div class="time-display" id="currentTime"></div>
+                    </div>
+
+                    <!-- Stats Cards Row -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card sales fade-in">
+                                <div class="stat-header">
+                                    <div class="stat-icon sales">
+                                        <i class="fas fa-arrow-trend-up"></i>
+                                    </div>
+                                </div>
+                                <div class="stat-value" id="salesValue">₱45,000</div>
+                                <div class="stat-label">Sales - This Month</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+12.5% from last month</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="stat-card expenses fade-in">
+                                <div class="stat-header">
+                                    <div class="stat-icon expenses">
+                                        <i class="fas fa-receipt"></i>
+                                    </div>
+                                </div>
+                                <div class="stat-value" id="expensesValue">₱18,200</div>
+                                <div class="stat-label">Expenses - This Month</div>
+                                <div class="stat-change negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>-3.2% from last month</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="chart-card fade-in">
+                                <div class="chart-header">
+                                    <h3 class="chart-title">Revenue Trend</h3>
+                                    <button class="chart-period">Monthly</button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="chart-card fade-in">
+                                <div class="chart-header">
+                                    <h3 class="chart-title">Cost Breakdown</h3>
+                                    <button class="chart-period">Current</button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="costsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Content Row -->
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div class="performance-card">
+                                <div class="chart-header">
+                                    <h3 class="chart-title">Performance Analytics</h3>
+                                    <div class="d-flex gap-2">
+                                        <button class="chart-period">6M</button>
+                                        <button class="chart-period" style="background: transparent; color: var(--text-secondary);">1Y</button>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="stat-card profit-card h-100 d-flex flex-column justify-content-center">
+                                <div class="profit-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="stat-value" style="color: white; font-size: 3rem;">₱26,800</div>
+                                <div class="stat-label" style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">Net Profit This Month</div>
+                                <div class="mt-3">
+                                    <div class="badge bg-light text-success fs-6 px-3 py-2">
+                                        <i class="fas fa-arrow-up me-1"></i>
+                                        +15.7% Growth
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <small style="color: rgba(255,255,255,0.8);">
+                                        Profit margin: 59.6%
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+        });
+
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+
+        // Navigation handling
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Close mobile sidebar
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+
+                // Add loading effect
+                const icon = this.querySelector('i');
+                const originalClass = icon.className;
+                icon.className = 'loading-spinner';
+                
+                setTimeout(() => {
+                    icon.className = originalClass;
+                }, 1000);
+            });
+        });
+
+        // Real-time clock
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Search functionality with suggestions
+        const searchInput = document.querySelector('.search-input');
+        const searchSuggestions = [
+            'monthly sales report',
+            'expense categories',
+            'profit analysis',
+            'client invoices',
+            'tax reports',
+            'inventory management',
+            'cash flow'
+        ];
+
+        searchInput.addEventListener('focus', function() {
+            this.setAttribute('placeholder', 'Try: "monthly sales report" or "expense categories"');
+        });
+
+        searchInput.addEventListener('blur', function() {
+            this.setAttribute('placeholder', 'Search transactions, clients, reports...');
+        });
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length > 2) {
+                // Simulate search with visual feedback
+                this.style.borderColor = '#10b981';
+                setTimeout(() => {
+                    this.style.borderColor = '#667eea';
+                }, 500);
+            }
+        });
+
+        // Notification system
+        const notificationBtn = document.querySelector('.notification-btn');
+        let notificationCount = 3;
+
+        notificationBtn.addEventListener('click', function() {
+            // Simulate marking notifications as read
+            const badge = this.querySelector('.notification-badge');
+            badge.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+                badge.style.display = 'none';
+            }, 300);
+            
+            // Show notification panel (simulate)
+            showNotificationToast('All notifications marked as read!');
+        });
+
+        function showNotificationToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-weight: 500;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Wait for Chart.js to load and initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded');
+                return;
+            }
+
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#718096';
+            Chart.defaults.borderColor = '#e2e8f0';
+            Chart.defaults.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Revenue Line Chart with enhanced styling
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [15000, 22000, 18000, 28000],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 4,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 3,
+                        pointRadius: 8,
+                        pointHoverRadius: 12,
+                        pointHoverBackgroundColor: '#667eea',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#667eea',
+                            borderWidth: 2,
+                            cornerRadius: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Revenue: ₱' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.5)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + (value / 1000) + 'K';
+                                },
+                                color: '#718096',
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#718096',
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            // Costs Donut Chart with enhanced styling
+            const costsCtx = document.getElementById('costsChart').getContext('2d');
+            const costsChart = new Chart(costsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Operations', 'Marketing', 'Supplies', 'Other'],
+                    datasets: [{
+                        data: [8200, 4500, 3200, 2300],
+                        backgroundColor: [
+                            '#fa709a',
+                            '#fee140',
+                            '#4facfe',
+                            '#43e97b'
+                        ],
+                        borderWidth: 0,
+                        cutout: '75%',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                },
+                                color: '#2d3748'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            cornerRadius: 10,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ₱' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Performance Chart with enhanced styling
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [35000, 42000, 38000, 51000, 49000, 62000],
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        hoverBackgroundColor: 'rgba(102, 126, 234, 1)',
+                        hoverBorderColor: '#667eea',
+                        hoverBorderWidth: 3
+                    }, {
+                        label: 'Expenses',
+                        data: [25000, 28000, 32000, 35000, 33000, 38000],
+                        backgroundColor: 'rgba(250, 112, 154, 0.8)',
+                        borderColor: '#fa709a',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        hoverBackgroundColor: 'rgba(250, 112, 154, 1)',
+                        hoverBorderColor: '#fa709a',
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 13,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            cornerRadius: 10,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₱' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.5)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + (value / 1000) + 'K';
+                                },
+                                color: '#718096',
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#718096',
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            // Store chart references for responsive updates
+            window.dashboardCharts = {
+                revenue: revenueChart,
+                costs: costsChart,
+                performance: performanceChart
+            };
+        }
+
+        // Responsive chart updates
+        window.addEventListener('resize', function() {
+            if (window.dashboardCharts) {
+                setTimeout(() => {
+                    Object.values(window.dashboardCharts).forEach(chart => {
+                        if (chart) chart.resize();
+                    });
+                }, 100);
+            }
+        });
+
+        // Add stagger animation to cards
+        document.querySelectorAll('.fade-in').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Real-time data updates simulation
+        function updateDashboardData() {
+            const salesElement = document.getElementById('salesValue');
+            const expensesElement = document.getElementById('expensesValue');
+            
+            // Simulate small random changes
+            const currentSales = 45000;
+            const currentExpenses = 18200;
+            
+            const salesChange = Math.floor(Math.random() * 1000) - 500;
+            const expensesChange = Math.floor(Math.random() * 500) - 250;
+            
+            const newSales = currentSales + salesChange;
+            const newExpenses = currentExpenses + expensesChange;
+            
+            // Animate value changes
+            animateValue(salesElement, newSales);
+            animateValue(expensesElement, newExpenses);
+        }
+
+        function animateValue(element, targetValue) {
+            const currentValue = parseInt(element.textContent.replace(/[^\d]/g, ''));
+            const increment = (targetValue - currentValue) / 20;
+            let current = currentValue;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                element.textContent = '₱' + Math.floor(current).toLocaleString();
+                
+                if (Math.abs(current - targetValue) < Math.abs(increment)) {
+                    element.textContent = '₱' + targetValue.toLocaleString();
+                    clearInterval(timer);
+                }
+            }, 50);
+        }
+
+        // Update data every 30 seconds
+        setInterval(updateDashboardData, 30000);
+
+        // Chart period button functionality
+        document.querySelectorAll('.chart-period').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active state from siblings
+                const siblings = this.parentElement.querySelectorAll('.chart-period');
+                siblings.forEach(btn => {
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--text-secondary)';
+                });
+                
+                // Add active state to clicked button
+                this.style.background = 'var(--primary-gradient)';
+                this.style.color = 'white';
+                
+                // Add loading effect
+                const originalText = this.textContent;
+                this.innerHTML = '<div class="loading-spinner"></div>';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    // Here you would typically reload chart data
+                    showNotificationToast(`Chart updated to ${originalText} view`);
+                }, 1000);
+            });
+        });
+
+        // Add pulse effect to profit card
+        const profitCard = document.querySelector('.profit-card');
+        setInterval(() => {
+            profitCard.classList.add('pulse');
+            setTimeout(() => {
+                profitCard.classList.remove('pulse');
+            }, 2000);
+        }, 10000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K to focus search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+            
+            // Escape to close mobile sidebar
+            if (e.key === 'Escape') {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+        });
+
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        console.log('✨ BookKeeper ERP Dashboard loaded successfully!');
+    </script>
+</body>
+</html>
